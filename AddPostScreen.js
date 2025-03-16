@@ -150,15 +150,16 @@ const AddPostScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
         backgroundColor: "#F6F4EB",
     },
     header: {
         backgroundColor: "#4682A9",
-        paddingVertical: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 20,
+        paddingVertical: 15,
+        paddingHorizontal:20,
+        alignItems: "flex-start",
+        justifyContent: "center",
+        paddingLeft: 20,
+        marginBottom:25,
     },
     headerText: {
         color: "#F6F4EB",
