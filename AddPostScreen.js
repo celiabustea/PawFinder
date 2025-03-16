@@ -78,8 +78,7 @@ const AddPostScreen = ({ navigation }) => {
                 content,
                 type: postType, // "Lost" or "Found"
                 author: auth.currentUser?.uid,
-                timestamp: serverTimestamp(),
-                imageurl: imageUrl, // This will be null if no image was uploaded
+                imageurl: imageUrl,
             };
 
             await addDoc(collection(db, "posts"), postData);

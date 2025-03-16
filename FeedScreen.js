@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, StyleSheet, Text, ActivityIndicator, Button } from 'react-native';
+import {View, ScrollView, StyleSheet, Text, ActivityIndicator, Button, RefreshControl} from 'react-native';
 import { db } from './firebaseConfig';
 import { collection, query, orderBy, onSnapshot, addDoc } from 'firebase/firestore';
 import PostCard from './PostCard';
@@ -7,8 +7,10 @@ import PostCard from './PostCard';
 const FeedScreen = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const fetchPosts = () => {
+        setRefreshing(true);
         const q = query(collection(db, 'posts'), orderBy('timestamp', 'desc'));
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -18,10 +20,17 @@ const FeedScreen = () => {
             }));
             setPosts(postsData);
             setLoading(false);
+            setRefreshing(false);
         });
 
-        return () => unsubscribe();
+        return unsubscribe;
+    };
+    useEffect(() => {
+        fetchPosts();
     }, []);
+    const handleRefresh = () => {
+        fetchPosts();
+    };
 
     const handleAddPost = async () => {
         try {
@@ -50,7 +59,17 @@ const FeedScreen = () => {
                 <Text style={styles.headerText}>PawFinder</Text>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh} // Trigger the refresh
+                        colors={['#4682A9']} // Color of the refresh spinner
+                    />
+                }
+            >
                 {posts.length > 0 ? (
                     posts.map(post => (
                         <PostCard

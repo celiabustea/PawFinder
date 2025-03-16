@@ -6,6 +6,7 @@ import { Image} from "react-native"
 import FeedScreen from './FeedScreen';
 import AddPostScreen from './AddPostScreen';
 import ProfileScreen from './ProfileScreen';
+import ChatBotScreen from "./ChatBotScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +23,8 @@ const AppNavigator = () => {
                         iconSource = require('./assets/add-button-12017.png');
                     } else if (route.name === 'Profile') {
                         iconSource = require('./assets/user-4250.png');
+                    }else if (route.name === 'ChatBot') {
+                        iconSource= require('./assets/ai.png');
                     }
 
                     return (
@@ -59,6 +62,12 @@ const AppNavigator = () => {
                 component={ProfileScreen}
                 options={{ headerShown: false }} // Hide header for Profile screen
             />
+            <Tab.Screen
+                name="ChatBot"
+                component={ChatBotScreen}
+                options={{ headerShown: false }}
+            />
+
         </Tab.Navigator>
     );
 };
