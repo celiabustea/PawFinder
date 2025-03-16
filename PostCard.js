@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { format } from 'date-fns';
-import { ro } from 'date-fns/locale'; // Opțional - pentru formatare în română
+import { ro } from 'date-fns/locale';
 
 const PostCard = ({ title, author, content, timestamp }) => {
     const formattedDate = format(new Date(timestamp), 'dd MMMM yyyy, HH:mm', { locale: ro });

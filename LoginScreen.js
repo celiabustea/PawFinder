@@ -30,7 +30,7 @@ export default function SignUpScreen({ navigation }) {
             });
 
             Alert.alert("✅ Success", "Account created successfully!");
-            navigation.replace("Profile");
+            navigation.replace("Feed");
         } catch (error) {
             if (error.code === "auth/email-already-in-use"){
                 Alert.alert("⚠️ Email is already taken. Try logging in instead.", error.message);
@@ -63,7 +63,7 @@ export default function SignUpScreen({ navigation }) {
             }
 
             Alert.alert("✅ Success", "Login successful!");
-            navigation.replace("Profile");
+            navigation.replace("Feed");
         } catch (error) {
             Alert.alert("❌ Error", error.message);
         } finally {

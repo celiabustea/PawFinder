@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator, TextInput, Alert, FlatList } from "react-native";
 import { auth, db } from "./firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, getDocs, collection,query,where } from "firebase/firestore";
 import { signOut } from "firebase/auth";
+import { useFocusEffect } from "@react-navigation/native";
+
+
 
 const ProfileScreen = ({ navigation }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showPrompt, setShowPrompt] = useState(false);
     const [phone, setPhone] = useState("");
+    const [posts, setPosts] = useState([]);
 
     React.useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
@@ -23,7 +27,11 @@ const ProfileScreen = ({ navigation }) => {
             }
 
             try {
-                const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+                // 1. Obține documentul utilizatorului
+                const userDocRef = doc(db, "users", currentUser.uid);
+                const userDoc = await getDoc(userDocRef);
+
+                // Verifică dacă documentul există
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     setUser(data);
@@ -31,8 +39,10 @@ const ProfileScreen = ({ navigation }) => {
                     if (!data.phone) {
                         setShowPrompt(true);
                     }
+
+
                 } else {
-                    console.log("No user data found in Firestore");
+                    console.log("User document does not exist");
                 }
             } catch (error) {
                 console.error("Error fetching user data:", error);
@@ -43,6 +53,26 @@ const ProfileScreen = ({ navigation }) => {
 
         fetchUserData();
     }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchUserPosts = async () => {
+                if (!auth.currentUser) return;
+                try {
+                    const postQuery = query(
+                        collection(db, "posts"),
+                        where("author", "==", auth.currentUser.uid)
+                    );
+                    const querySnapshot = await getDocs(postQuery);
+                    const userPosts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    setPosts(userPosts);
+                } catch (error) {
+                    console.error("Error fetching posts:", error);
+                }
+            };
+
+            fetchUserPosts();
+        }, [])
+    );
 
     const handleLogout = async () => {
         try {
@@ -52,7 +82,22 @@ const ProfileScreen = ({ navigation }) => {
             console.error("Logout failed:", error);
         }
     };
+
     const handleEdit = async () => {
+        navigation.navigate('AddPost');  // Navigate to AddPostScreen when Edit button is pressed
+    };
+
+
+
+    const renderPostItem = ({item}) => {
+        return (
+            <View style={styles.postItem}>
+                <Image source={{uri: item.imageurl}} style={styles.postImage}/>
+            </View>
+        );
+    };
+    if (loading){
+        return <ActivityIndicator size="large" color="#4682A9" style={styles.loader} />;
 
     }
 
@@ -97,6 +142,19 @@ const ProfileScreen = ({ navigation }) => {
                 </View>
             </View>
 
+            {/* Logout and Edit Buttons */}
+            <View style={styles.actionButtonsContainer}>
+                {/* Edit Button */}
+                <TouchableOpacity onPress={(handleEdit)} style={styles.editButton}>
+                    <Text>Edit Profile</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                    <Text style={styles.logoutText}>Logout</Text>
+                </TouchableOpacity>
+            </View>
+
+
             {/* Phone Number Prompt */}
             {showPrompt && (
                 <View style={styles.phoneContainer}>
@@ -114,17 +172,26 @@ const ProfileScreen = ({ navigation }) => {
                 </View>
             )}
 
-            {/* Logout Button */}
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-                <Text style={styles.editButtontext}>Edit Profile</Text>
-            </TouchableOpacity>
-            
+            {/* Posts Grid */}
+            <View style={styles.postsContainer}>
+                {posts.length === 0 ? (
+                    <Text style={styles.noPostsText}>No posts yet. Start sharing!</Text>
+                ) : (
+                    <FlatList
+                        data={posts}
+                        renderItem={renderPostItem}
+                        keyExtractor={(item, index) => index.toString()}
+                        numColumns={3} // 3 columns in the grid
+                        columnWrapperStyle={styles.columnWrapper}
+                    />
+                )}
+            </View>
+
+
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
@@ -138,14 +205,16 @@ const styles = StyleSheet.create({
     header: {
         backgroundColor: "#4682A9",
         paddingVertical: 15,
+        paddingHorizontal:20,
         alignItems: "flex-start",
         justifyContent: "center",
         paddingLeft: 20,
     },
     headerText: {
         color: "#F6F4EB",
-        fontSize: 22,
-        fontWeight: "bold",
+        fontSize: 24,
+        fontWeight: "700",
+        letterSpacing: 0.0,
     },
     profileContainer: {
         flexDirection: "row",
@@ -167,6 +236,26 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#4682A9",
     },
+    actionButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+        paddingHorizontal: 20,
+    },
+    editButton: {
+        backgroundColor: "#91C8E4",
+        paddingVertical: 9,
+        borderRadius: 10,
+        alignItems: "center",
+        width: '48%',
+        height: '100%',
+    },
+    editButtonText: {
+        color: "#4682A9",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+
     email: {
         fontSize: 14,
         color: "#749BC2",
@@ -201,22 +290,45 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     logoutButton: {
-        backgroundColor: "#749BC2",
-        paddingVertical: 12,
+        backgroundColor: "#91C8E4",
+        paddingVertical: 9,
         borderRadius: 10,
         alignItems: "center",
-        marginHorizontal: 20,
-        marginTop: 20,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3, // Android shadow
+        width: '48%',
+        height: '100%',
     },
     logoutText: {
         color: "#F6F4EB",
         fontSize: 16,
         fontWeight: "bold",
     },
+    postsContainer:{
+        padding:15,
+    },
+    postItem: {
+        margin: 5,
+        backgroundColor: "#FFF",
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    postImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 10,
+    },
+    columnWrapper: {
+        justifyContent: "space-between",
+    },
+    noPostsText: {
+        textAlign: "center",
+        color: "#749BC2",
+        fontSize: 16,
+        marginTop: 20,
+    },
+
 });
 
 export default ProfileScreen;
