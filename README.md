@@ -5,9 +5,9 @@
 
 PawFinder is a cross-platform mobile app built with React Native that helps users **report and find missing pets** using **AI-powered image matching**. With real-time updates, location-based searches, and a user-friendly interface, PawFinder makes reuniting with lost pets easier and faster.
 
+> ⚠️ **Note:** This app was developed in just 48 hours during the ItFest hackathon. It is **very unfinished** — I ran out of time and tokens for the AI API, so features like matching are incomplete or stubbed.
+
 ---
-Note: This app was developed in just 48 hours during the ItFest hackathon, and it is quite old and unfinished.
-As a result, it might not work properly due to version conflicts and other issues that I wasn’t able to fix after reopening the project.
 
 ## 🚀 Features
 
@@ -15,7 +15,7 @@ As a result, it might not work properly due to version conflicts and other issue
   Upload images, write descriptions, and mark the pet’s last known location.
 
 - 🤖 **AI Image Matching**  
-  Smart detection and comparison to match lost pets with found ones using visual similarity.
+  Smart detection and comparison to match lost pets with found ones using visual similarity. *(Currently non-functional due to token limits.)*
 
 - 🔐 **User Authentication**  
   Sign up and log in securely via Firebase Authentication.
@@ -29,17 +29,20 @@ As a result, it might not work properly due to version conflicts and other issue
 
 - **React Native** – Cross-platform app development  
 - **Firebase** – Realtime database & user authentication  
-- **AI Image Matching** – Smart comparison of pet images  
+- **AI Image Matching** – Smart comparison of pet images *(concept only)*  
 - **Expo** – Development & testing framework
 
 ---
 
-## 📷 Screenshots
+## 📷 Screenshots (Very Early UI Preview)
 
-![Screenshot 2025-03-07 111057](https://github.com/user-attachments/assets/e814f3c0-ecbb-4170-a38a-831ce89379a2)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/873b6cbd-2449-4231-a410-a979dacbe2f4" alt="Screenshot 1" width="30%"/>
+  <img src="https://github.com/user-attachments/assets/e74936d0-b0d6-486b-b2ce-b195184901a1" alt="Screenshot 2" width="30%"/>
+  <img src="https://github.com/user-attachments/assets/10583e34-58e8-407f-b929-fc6537101193" alt="Screenshot 3" width="30%"/>
+</p>
 
-
-
+---
 
 ## 📦 Installation
 
@@ -48,3 +51,4 @@ git clone https://github.com/yourusername/pawfinder.git
 cd pawfinder
 npm install
 npx expo start
+```
